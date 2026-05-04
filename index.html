@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MNSjob — Le job board des Maîtres Nageurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #080a0f;
+  --dark: #0d1117;
+  --card: #111820;
+  --card2: #161e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --cyan: #00e5ff;
+  --cyan2: #00b8cc;
+  --green: #00ff87;
+  --orange: #ff6b35;
+  --white: #f0f4f8;
+  --muted: rgba(240,244,248,0.45);
+  --muted2: rgba(240,244,248,0.25);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* ── CURSOR ── */
+*, *::before, *::after { cursor: none !important; }
+.cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--cyan); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  mix-blend-mode: difference;
+}
+.cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1.5px solid rgba(0,229,255,0.5);
+  border-radius: 50%; pointer-events: none; z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all 0.15s ease;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 56px;
+  background: rgba(8,10,15,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.nav-center {
+  display: flex; gap: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px;
+}
+.nav-tab {
+  padding: 8px 22px; border-radius: 999px;
+  border: none; background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  transition: all 0.25s;
+}
+.nav-tab.active {
+  background: var(--cyan); color: var(--black);
+  font-weight: 700;
+}
+.nav-tab:hover:not(.active) { color: var(--white); }
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+
+.btn-ghost {
+  padding: 9px 20px;
+  border: 1px solid var(--border2);
+  border-radius: 999px; background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--white);
+  transition: all 0.2s;
+}
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.btn-cyan {
+  padding: 9px 22px;
+  background: var(--cyan); color: var(--black);
+  border: none; border-radius: 999px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  transition: all 0.2s;
+}
+.btn-cyan:hover { background: #33ecff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,255,0.3); }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ══════════════════════════════════
+   VUE CANDIDAT
+══════════════════════════════════ */
+
+/* ── HERO CANDIDAT ── */
+.hero-candidat {
+  min-height: 100vh;
+  padding: 140px 56px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+  top: 50%; left: 30%; transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hero-left { position: relative; z-index: 1; }
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 999px;
+  font-size: 12px; font-weight: 600; color: var(--cyan);
+  letter-spacing: 0.05em; text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(48px, 5.5vw, 80px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+}
+.hero-title .accent { color: var(--cyan); display: block; }
+
+.hero-desc {
+  font-size: 17px; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+  max-width: 420px; margin-bottom: 40px;
+}
+
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn-primary-lg {
+  padding: 16px 36px;
+  background: var(--cyan); color: var(--black);
+  border: none; border-radius: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  transition: all 0.25s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary-lg:hover { background: #33ecff; transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,229,255,0.35); }
+
+.btn-outline-lg {
+  padding: 16px 36px;
+  background: transparent; color: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 600;
+  transition: all 0.25s;
+}
+.btn-outline-lg:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* Search widget */
+.hero-right { position: relative; z-index: 1; }
+
+.search-widget {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.search-widget h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  display: flex; align-items: center; gap: 0;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  border-radius: 12px; overflow: hidden;
+  margin-bottom: 16px;
+}
+.search-bar input {
+  flex: 1; padding: 14px 16px;
+  background: transparent; border: none; outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px; color: var(--white);
+}
+.search-bar input::placeholder { color: var(--muted2); }
+.search-btn {
+  padding: 10px 20px; margin: 4px;
+  background: var(--cyan); color: var(--black);
+  border: none; border-radius: 8px;
+  font-weight: 700; font-size: 13px;
+  white-space: nowrap;
+}
+
+.filter-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.filter-chip {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px; color: var(--muted);
+  transition: all 0.2s;
+}
+.filter-chip.on, .filter-chip:hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.3);
+  color: var(--cyan);
+}
+
+/* Mini job cards in widget */
+.mini-jobs { display: flex; flex-direction: column; gap: 10px; }
+
+.mini-job {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: all 0.25s;
+}
+.mini-job:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); transform: translateX(4px); }
+
+.mini-job-logo {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,255,135,0.1));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.mini-job-info { flex: 1; min-width: 0; }
+.mini-job-title {
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.mini-job-meta { font-size: 11px; color: var(--muted); display: flex; gap: 10px; }
+
+.mini-badge {
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.mini-badge.new { background: rgba(0,255,135,0.1); color: var(--green); border: 1px solid rgba(0,255,135,0.2); }
+.mini-badge.hot { background: rgba(255,107,53,0.1); color: var(--orange); border: 1px solid rgba(255,107,53,0.2); }
+.mini-badge.loge { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-item {
+  padding: 36px 56px;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 44px; font-weight: 800;
+  line-height: 1; margin-bottom: 6px;
+}
+.stat-num.c { color: var(--cyan); }
+.stat-num.g { color: var(--green); }
+.stat-num.o { color: var(--orange); }
+.stat-label { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* ── OFFRES ── */
+.section { padding: 100px 56px; }
+.section-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; margin-bottom: 48px;
+}
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--cyan);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 800; letter-spacing: -1.5px;
+  line-height: 1.05;
+}
+.section-link {
+  font-size: 14px; color: var(--cyan);
+  text-decoration: none; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid rgba(0,229,255,0.3);
+  padding-bottom: 2px;
+  white-space: nowrap;
+}
+
+/* Job cards grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.job-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px;
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.job-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  opacity: 0; transition: opacity 0.3s;
+}
+.job-card:hover { border-color: rgba(0,229,255,0.25); transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,0.4); }
+.job-card:hover::before { opacity: 1; }
+
+.job-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+
+.job-employer-logo {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,255,135,0.08));
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 1px solid var(--border2);
+}
+
+.job-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.badge {
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+}
+.badge.new { background: rgba(0,255,135,0.1); color: var(--green); border: 1px solid rgba(0,255,135,0.15); }
+.badge.urgent { background: rgba(255,107,53,0.1); color: var(--orange); border: 1px solid rgba(255,107,53,0.15); }
+.badge.loge { background: rgba(0,229,255,0.1); color: var(--cyan); border: 1px solid rgba(0,229,255,0.15); }
+.badge.cdi { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+
+.job-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px; font-weight: 700;
+  margin-bottom: 6px; line-height: 1.2;
+}
+.job-employer { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+.job-meta-row {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.job-meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--muted);
+}
+.job-meta-item svg { opacity: 0.5; }
+
+.job-certs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.cert-tag {
+  padding: 4px 10px;
+  background: rgba(0,229,255,0.06);
+  border: 1px solid rgba(0,229,255,0.12);
+  border-radius: 6px;
+  font-size: 11px; font-weight: 600; color: var(--cyan);
+  font-family: 'Syne', sans-serif;
+}
+
+.job-card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.job-salary { font-size: 14px; font-weight: 700; color: var(--white); }
+.job-date { font-size: 11px; color: var(--muted2); }
+
+.btn-apply {
+  padding: 8px 18px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 8px; color: var(--cyan);
+  font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-apply:hover { background: var(--cyan); color: var(--black); }
+
+/* ── FEATURES ── */
+.features-section { padding: 100px 56px; background: var(--dark); }
+
+.features-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2px; margin-top: 56px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 24px; overflow: hidden;
+}
+.feature-block {
+  background: var(--dark);
+  padding: 48px 44px;
+  transition: background 0.3s;
+}
+.feature-block:hover { background: var(--card); }
+.feature-block.wide { grid-column: span 2; }
+
+.feature-icon {
+  width: 52px; height: 52px;
+  background: rgba(0,229,255,0.1);
+  border-radius: 14px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 1px solid rgba(0,229,255,0.15);
+}
+.feature-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700; margin-bottom: 10px;
+}
+.feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+/* ── ALERT SIGNUP ── */
+.alert-section { padding: 100px 56px; }
+.alert-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 28px; padding: 64px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  position: relative; overflow: hidden;
+}
+.alert-box::before {
+  content: '';
+  position: absolute; top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+}
+.alert-box-left h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800; letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.alert-box-left p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+.alert-form { display: flex; flex-direction: column; gap: 12px; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+.form-input {
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border2);
+  border-radius: 10px; outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px; color: var(--white);
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--cyan); background: rgba(0,229,255,0.04); }
+.form-input::placeholder { color: var(--muted2); }
+
+.tags-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-pill {
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px; font-size: 12px; font-weight: 500;
+  color: var(--muted); transition: all 0.2s;
+}
+.tag-pill.sel, .tag-pill:hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.3); color: var(--cyan);
+  font-weight: 600;
+}
+
+.form-submit {
+  padding: 15px;
+  background: var(--cyan); color: var(--black);
+  border: none; border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  transition: all 0.2s; margin-top: 4px;
+}
+.form-submit:hover { background: #33ecff; box-shadow: 0 12px 32px rgba(0,229,255,0.3); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   VUE EMPLOYEUR
+══════════════════════════════════ */
+
+.hero-employeur {
+  min-height: 85vh;
+  padding: 140px 56px 80px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  position: relative; overflow: hidden;
+}
+
+.hero-employeur .hero-glow {
+  background: radial-gradient(circle, rgba(0,255,135,0.06) 0%, transparent 70%);
+  left: 60%;
+}
+
+.employeur-visual {
+  position: relative; z-index: 1;
+}
+
+.dashboard-preview {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 20px; padding: 24px;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.dash-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.dash-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+.dash-badge {
+  padding: 4px 12px;
+  background: rgba(0,255,135,0.1); color: var(--green);
+  border: 1px solid rgba(0,255,135,0.2);
+  border-radius: 999px; font-size: 12px; font-weight: 600;
+}
+
+.dash-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.dash-stat {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  text-align: center;
+}
+.dash-stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px; font-weight: 800;
+  line-height: 1; margin-bottom: 4px;
+}
+.dash-stat-num.c { color: var(--cyan); }
+.dash-stat-num.g { color: var(--green); }
+.dash-stat-num.o { color: var(--orange); }
+.dash-stat-label { font-size: 11px; color: var(--muted); }
+
+.candidate-list { display: flex; flex-direction: column; gap: 8px; }
+.candidate-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.candidate-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.candidate-name { font-size: 13px; font-weight: 600; flex: 1; }
+.candidate-cert { font-size: 11px; color: var(--cyan); font-weight: 600; }
+.candidate-status {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.candidate-status.available { background: var(--green); }
+.candidate-status.soon { background: var(--orange); }
+
+/* Pricing */
+.pricing-section { padding: 100px 56px; }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 56px;
+}
+.price-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px; padding: 36px 28px;
+  position: relative; transition: all 0.3s;
+}
+.price-card:hover { border-color: rgba(0,229,255,0.25); transform: translateY(-4px); }
+.price-card.featured {
+  border-color: rgba(0,229,255,0.3);
+  background: linear-gradient(180deg, rgba(0,229,255,0.06) 0%, var(--card) 40%);
+}
+.price-card.featured::before {
+  content: '⭐ Le plus choisi';
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: var(--cyan); color: var(--black);
+  padding: 4px 16px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+
+.price-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 700; margin-bottom: 6px;
+}
+.price-desc { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.price-amount {
+  font-family: 'Syne', sans-serif;
+  font-size: 56px; font-weight: 800;
+  line-height: 1; color: var(--cyan); margin-bottom: 4px;
+}
+.price-amount span { font-size: 22px; font-weight: 400; color: var(--muted); }
+.price-period { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+.price-features { list-style: none; margin-bottom: 28px; }
+.price-features li {
+  font-size: 14px; color: rgba(240,244,248,0.75);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.price-features li::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+.btn-price {
+  width: 100%; padding: 14px;
+  border-radius: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  transition: all 0.2s;
+  border: 1px solid rgba(0,229,255,0.3);
+  background: transparent; color: var(--cyan);
+}
+.btn-price:hover { background: rgba(0,229,255,0.1); }
+.btn-price.filled { background: var(--cyan); color: var(--black); border-color: var(--cyan); }
+.btn-price.filled:hover { background: #33ecff; box-shadow: 0 8px 24px rgba(0,229,255,0.3); }
+
+/* How it works */
+.how-section { padding: 100px 56px; background: var(--dark); }
+.steps-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; margin-top: 56px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 24px; overflow: hidden;
+}
+.step-block {
+  background: var(--dark);
+  padding: 44px 36px;
+  transition: background 0.3s;
+}
+.step-block:hover { background: var(--card); }
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 80px; font-weight: 800;
+  line-height: 0.9;
+  color: rgba(0,229,255,0.08);
+  margin-bottom: -10px;
+}
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 10px; position: relative; z-index: 1;
+}
+.step-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+/* ── CTA FINAL ── */
+.cta-final {
+  margin: 0 56px 80px;
+  background: linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(0,255,135,0.04) 100%);
+  border: 1px solid rgba(0,229,255,0.15);
+  border-radius: 28px; padding: 80px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.cta-final::before {
+  content: '';
+  position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, rgba(0,229,255,0.08) 0%, transparent 70%);
+}
+.cta-final h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 800; letter-spacing: -2px;
+  margin-bottom: 16px; position: relative; z-index: 1;
+}
+.cta-final p { font-size: 17px; color: var(--muted); margin-bottom: 40px; position: relative; z-index: 1; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 48px 56px;
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 32px;
+}
+.footer-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+.footer-logo span { color: var(--cyan); }
+.footer-links { display: flex; gap: 28px; }
+.footer-links a { font-size: 13px; color: var(--muted2); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--cyan); }
+.footer-copy { font-size: 12px; color: var(--muted2); text-align: right; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-center { display: none; }
+  .hero-candidat, .hero-employeur { grid-template-columns: 1fr; gap: 40px; padding: 120px 24px 60px; }
+  .stats-bar { grid-template-columns: repeat(2,1fr); }
+  .stat-item { padding: 28px 24px; }
+  .section, .features-section, .alert-section, .pricing-section, .how-section { padding: 60px 24px; }
+  .jobs-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-block.wide { grid-column: span 1; }
+  .alert-box { grid-template-columns: 1fr; gap: 40px; padding: 40px 28px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .steps-row { grid-template-columns: 1fr; }
+  .cta-final { margin: 0 24px 60px; padding: 48px 28px; }
+  footer { grid-template-columns: 1fr; text-align: center; padding: 40px 24px; }
+  .footer-copy { text-align: center; }
+  .footer-links { justify-content: center; flex-wrap: wrap; }
+  .hero-right { display: none; }
+  .employeur-visual { display: none; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.fu { animation: fadeUp 0.6s ease forwards; }
+.fu2 { animation: fadeUp 0.6s 0.1s ease forwards; opacity: 0; }
+.fu3 { animation: fadeUp 0.6s 0.2s ease forwards; opacity: 0; }
+.fu4 { animation: fadeUp 0.6s 0.35s ease forwards; opacity: 0; }
+.fu5 { animation: fadeUp 0.6s 0.5s ease forwards; opacity: 0; }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    MNS<span style="color:var(--cyan)">job</span>
+  </div>
+  <div class="nav-center">
+    <button class="nav-tab active" onclick="switchView('candidat',this)">🤽 Candidats</button>
+    <button class="nav-tab" onclick="switchView('employeur',this)">🏢 Employeurs</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn-ghost">Se connecter</button>
+    <button class="btn-cyan" onclick="switchView('employeur',document.querySelectorAll('.nav-tab')[1])">Publier une offre</button>
+  </div>
+</nav>
+
+<!-- ══════ VUE CANDIDAT ══════ -->
+<div id="view-candidat" class="view active">
+
+  <!-- HERO -->
+  <section class="hero-candidat">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-left">
+      <div class="hero-tag fu">🔴 5 000 postes vacants en France</div>
+      <h1 class="hero-title fu2">
+        Trouve ton<br>
+        <span class="accent">poste MNS</span>
+        idéal.
+      </h1>
+      <p class="hero-desc fu3">
+        Le seul job board 100% dédié aux Maîtres Nageurs. BPJEPS, BNSSA, saisonnier ou CDI — toutes les offres au même endroit.
+      </p>
+      <div class="hero-actions fu4">
+        <button class="btn-primary-lg" onclick="document.getElementById('alert-section').scrollIntoView({behavior:'smooth'})">
+          Créer mon alerte 🔔
+        </button>
+        <button class="btn-outline-lg" onclick="document.getElementById('offres-section').scrollIntoView({behavior:'smooth'})">
+          Voir les offres →
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-right fu5">
+      <div class="search-widget">
+        <h3>Rechercher une offre</h3>
+        <div class="search-bar">
+          <input type="text" placeholder="Ville, département, région...">
+          <button class="search-btn">Rechercher</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-chip on" onclick="toggleChip(this)">Tous</span>
+          <span class="filter-chip" onclick="toggleChip(this)">CDI</span>
+          <span class="filter-chip" onclick="toggleChip(this)">Saisonnier</span>
+          <span class="filter-chip" onclick="toggleChip(this)">🏠 Logé</span>
+          <span class="filter-chip" onclick="toggleChip(this)">BPJEPS</span>
+          <span class="filter-chip" onclick="toggleChip(this)">BNSSA</span>
+        </div>
+        <div class="mini-jobs">
+          <div class="mini-job">
+            <div class="mini-job-logo">🏊</div>
+            <div class="mini-job-info">
+              <div class="mini-job-title">MNS Responsable bassin — Marseille</div>
+              <div class="mini-job-meta"><span>CDI</span><span>1 800–2 200€</span></div>
+            </div>
+            <span class="mini-badge new">Nouveau</span>
+          </div>
+          <div class="mini-job">
+            <div class="mini-job-logo">⛱️</div>
+            <div class="mini-job-info">
+              <div class="mini-job-title">Surveillant saisonnier — Var (83)</div>
+              <div class="mini-job-meta"><span>Juil–Août</span><span>BNSSA</span></div>
+            </div>
+            <span class="mini-badge loge">🏠 Logé</span>
+          </div>
+          <div class="mini-job">
+            <div class="mini-job-logo">🏅</div>
+            <div class="mini-job-info">
+              <div class="mini-job-title">Éducateur aquatique — Lyon</div>
+              <div class="mini-job-meta"><span>CDD 6 mois</span><span>BPJEPS</span></div>
+            </div>
+            <span class="mini-badge hot">Urgent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num c">5 000</div>
+      <div class="stat-label">postes MNS vacants<br>en France</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num g">14 mois</div>
+      <div class="stat-label">d'attente moyenne<br>dans les grandes villes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num o">1M+</div>
+      <div class="stat-label">enfants en retard<br>post-COVID</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num c">+12%</div>
+      <div class="stat-label">croissance annuelle<br>du marché privé</div>
+    </div>
+  </div>
+
+  <!-- OFFRES -->
+  <section class="section" id="offres-section">
+    <div class="section-header">
+      <div>
+        <div class="section-eyebrow">Offres récentes</div>
+        <h2 class="section-title">Les derniers postes<br>disponibles</h2>
+      </div>
+      <a href="#" class="section-link">Voir toutes les offres →</a>
+    </div>
+
+    <div class="jobs-grid">
+
+      <div class="job-card">
+        <div class="job-card-header">
+          <div class="job-employer-logo">🏊</div>
+          <div class="job-badges">
+            <span class="badge new">Nouveau</span>
+            <span class="badge cdi">CDI</span>
+          </div>
+        </div>
+        <div class="job-title">MNS — Responsable bassin</div>
+        <div class="job-employer">Piscine Municipale de Marseille</div>
+        <div class="job-meta-row">
+          <span class="job-meta-item">📍 Marseille (13)</span>
+          <span class="job-meta-item">🕐 Temps plein</span>
+        </div>
+        <div class="job-certs">
+          <span class="cert-tag">BPJEPS AAN</span>
+          <span class="cert-tag">PSE1</span>
+        </div>
+        <div class="job-card-footer">
+          <div>
+            <div class="job-salary">1 800 – 2 200 €/mois</div>
+            <div class="job-date">Publié il y a 2 jours</div>
+          </div>
+          <button class="btn-apply">Postuler</button>
+        </div>
+      </div>
+
+      <div class="job-card">
+        <div class="job-card-header">
+          <div class="job-employer-logo">⛱️</div>
+          <div class="job-badges">
+            <span class="badge urgent">Urgent</span>
+            <span class="badge loge">🏠 Logé</span>
+          </div>
+        </div>
+        <div class="job-title">Surveillant de baignade saisonnier</div>
+        <div class="job-employer">Camping Les Palmiers — Var</div>
+        <div class="job-meta-row">
+          <span class="job-meta-item">📍 Var (83)</span>
+          <span class="job-meta-item">🗓 Juil–Août 2025</span>
+        </div>
+        <div class="job-certs">
+          <span class="cert-tag">BNSSA</span>
+        </div>
+        <div class="job-card-footer">
+          <div>
+            <div class="job-salary">SMIC + avantages</div>
+            <div class="job-date">Publié il y a 1 jour</div>
+          </div>
+          <button class="btn-apply">Postuler</button>
+        </div>
+      </div>
+
+      <div class="job-card">
+        <div class="job-card-header">
+          <div class="job-employer-logo">🏅</div>
+          <div class="job-badges">
+            <span class="badge new">Nouveau</span>
+          </div>
+        </div>
+        <div class="job-title">Éducateur aquatique enfants</div>
+        <div class="job-employer">Centre Aquatique O'Vert — Lyon</div>
+        <div class="job-meta-row">
+          <span class="job-meta-item">📍 Lyon (69)</span>
+          <span class="job-meta-item">🕐 CDD 6 mois</span>
+        </div>
+        <div class="job-certs">
+          <span class="cert-tag">BPJEPS AAN</span>
+          <span class="cert-tag">PSE1</span>
+        </div>
+        <div class="job-card-footer">
+          <div>
+            <div class="job-salary">1 600 – 1 900 €/mois</div>
+            <div class="job-date">Publié il y a 3 jours</div>
+          </div>
+          <button class="btn-apply">Postuler</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section">
+    <div class="section-eyebrow">Pourquoi MNSjob</div>
+    <h2 class="section-title">Conçu par un MNS,<br>pour les MNS.</h2>
+
+    <div class="features-grid">
+      <div class="feature-block wide">
+        <div class="feature-icon">🔔</div>
+        <h3 class="feature-title">Alertes emploi en temps réel</h3>
+        <p class="feature-desc">Inscris-toi une fois, reçois une notification dès qu'une offre correspond à ton profil, tes certifications et ta zone géographique. Plus jamais de poste raté.</p>
+      </div>
+      <div class="feature-block">
+        <div class="feature-icon">📚</div>
+        <h3 class="feature-title">Guide des formations</h3>
+        <p class="feature-desc">BNSSA, BPJEPS, PSE1, PSE2... Tous les centres référencés, les dates, les coûts. Ta feuille de route pour progresser.</p>
+      </div>
+      <div class="feature-block">
+        <div class="feature-icon">🗺️</div>
+        <h3 class="feature-title">Offres géolocalisées</h3>
+        <p class="feature-desc">Filtre par département, type de contrat, certification requise, et logement inclus. Trouve le poste qui colle à ta vie.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALERT SIGNUP -->
+  <section class="alert-section" id="alert-section">
+    <div class="alert-box">
+      <div class="alert-box-left">
+        <h2>Ne rate plus<br>aucune offre.</h2>
+        <p>Crée ton alerte en 30 secondes. Gratuit, sans spam, désabonnement en 1 clic.</p>
+      </div>
+      <div class="alert-form">
+        <div class="form-group">
+          <label class="form-label">Prénom et nom</label>
+          <input class="form-input" type="text" placeholder="Jean Dupont">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="jean@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tes certifications</label>
+          <div class="tags-grid">
+            <span class="tag-pill" onclick="toggleTag(this)">BNSSA</span>
+            <span class="tag-pill" onclick="toggleTag(this)">BPJEPS AAN</span>
+            <span class="tag-pill" onclick="toggleTag(this)">PSE1</span>
+            <span class="tag-pill" onclick="toggleTag(this)">PSE2</span>
+            <span class="tag-pill" onclick="toggleTag(this)">SB</span>
+            <span class="tag-pill" onclick="toggleTag(this)">Permis Côtier</span>
+            <span class="tag-pill" onclick="toggleTag(this)">Permis Eaux Intérieures</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type de poste</label>
+          <div class="tags-grid">
+            <span class="tag-pill" onclick="toggleTag(this)">CDI</span>
+            <span class="tag-pill" onclick="toggleTag(this)">CDD</span>
+            <span class="tag-pill" onclick="toggleTag(this)">Saisonnier</span>
+            <span class="tag-pill" onclick="toggleTag(this)">Vacations</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Avantages recherchés</label>
+          <div class="tags-grid">
+            <span class="tag-pill" onclick="toggleTag(this)">🏠 Logement inclus</span>
+          </div>
+        </div>
+        <button class="form-submit">Créer mon alerte gratuitement 🔔</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══════ VUE EMPLOYEUR ══════ -->
+<div id="view-employeur" class="view">
+
+  <!-- HERO -->
+  <section class="hero-employeur">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-left">
+      <div class="hero-tag fu" style="color:var(--green); background:rgba(0,255,135,0.1); border-color:rgba(0,255,135,0.2);">🟢 Recrutez en 48h chrono</div>
+      <h1 class="hero-title fu2">
+        Trouvez le MNS<br>
+        <span class="accent" style="color:var(--green)">qu'il vous faut.</span>
+      </h1>
+      <p class="hero-desc fu3">
+        MNSjob, c'est le seul endroit où tous les MNS qualifiés de France se retrouvent. Publiez votre offre, recevez des candidatures vérifiées.
+      </p>
+      <div class="hero-actions fu4">
+        <button class="btn-primary-lg" style="background:var(--green)" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">
+          Publier une offre →
+        </button>
+        <button class="btn-outline-lg" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'})">
+          Comment ça marche
+        </button>
+      </div>
+    </div>
+
+    <div class="employeur-visual fu5">
+      <div class="dashboard-preview">
+        <div class="dash-header">
+          <div class="dash-title">Tableau de bord recruteur</div>
+          <div class="dash-badge">● En ligne</div>
+        </div>
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <div class="dash-stat-num c">24</div>
+            <div class="dash-stat-label">Candidatures</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-num g">8</div>
+            <div class="dash-stat-label">Qualifiés</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-num o">3</div>
+            <div class="dash-stat-label">À contacter</div>
+          </div>
+        </div>
+        <div class="candidate-list">
+          <div class="candidate-row">
+            <div class="candidate-avatar" style="background:rgba(0,229,255,0.15)">👤</div>
+            <div class="candidate-name">Sophie M.</div>
+            <div class="candidate-cert">BPJEPS AAN</div>
+            <div class="candidate-status available"></div>
+          </div>
+          <div class="candidate-row">
+            <div class="candidate-avatar" style="background:rgba(0,255,135,0.15)">👤</div>
+            <div class="candidate-name">Karim B.</div>
+            <div class="candidate-cert">BNSSA + PSE1</div>
+            <div class="candidate-status available"></div>
+          </div>
+          <div class="candidate-row">
+            <div class="candidate-avatar" style="background:rgba(255,107,53,0.15)">👤</div>
+            <div class="candidate-name">Léa T.</div>
+            <div class="candidate-cert">BPJEPS AAN</div>
+            <div class="candidate-status soon"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num c">48h</div>
+      <div class="stat-label">délai moyen pour<br>recevoir des candidatures</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num g">100%</div>
+      <div class="stat-label">profils avec certifications<br>vérifiées</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num o">5 000</div>
+      <div class="stat-label">MNS inscrits<br>sur la plateforme</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num c">49€</div>
+      <div class="stat-label">pour publier<br>votre première offre</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how-section">
+    <div class="section-eyebrow">Comment ça marche</div>
+    <h2 class="section-title">Recrutez un MNS<br>en 3 étapes.</h2>
+    <div class="steps-row">
+      <div class="step-block">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Publiez votre offre</h3>
+        <p class="step-desc">En moins de 5 minutes. Poste, certifications requises, dates, lieu, salaire. Simple et guidé.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Les MNS sont alertés</h3>
+        <p class="step-desc">Tous les MNS inscrits correspondant à votre profil reçoivent une notification instantanée.</p>
+      </div>
+      <div class="step-block">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Recevez les candidatures</h3>
+        <p class="step-desc">Candidatures directement dans votre tableau de bord. Profils avec certifications vérifiées.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section" id="pricing-section">
+    <div class="section-eyebrow">Tarifs</div>
+    <h2 class="section-title">Simple. Transparent.<br>Sans abonnement.</h2>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-desc">Pour tester la plateforme</div>
+        <div class="price-amount">49<span>€</span></div>
+        <div class="price-period">par offre publiée</div>
+        <ul class="price-features">
+          <li>1 offre visible 30 jours</li>
+          <li>Alerte aux MNS inscrits</li>
+          <li>Candidatures illimitées</li>
+          <li>Support email</li>
+        </ul>
+        <button class="btn-price">Publier une offre</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-name">Pro</div>
+        <div class="price-desc">Pour un recrutement sérieux</div>
+        <div class="price-amount">89<span>€</span></div>
+        <div class="price-period">par offre publiée</div>
+        <ul class="price-features">
+          <li>1 offre visible 45 jours</li>
+          <li>Mise en avant en tête de liste</li>
+          <li>Alerte prioritaire aux MNS</li>
+          <li>Badge employeur vérifié</li>
+          <li>Tableau de bord recruteur</li>
+        </ul>
+        <button class="btn-price filled">Publier maintenant</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Pack Saison</div>
+        <div class="price-desc">Pour les recrutements multiples</div>
+        <div class="price-amount">299<span>€</span></div>
+        <div class="price-period">3 offres · 90 jours</div>
+        <ul class="price-features">
+          <li>3 offres simultanées</li>
+          <li>Visibilité 90 jours</li>
+          <li>Logo employeur affiché</li>
+          <li>Alerte push prioritaire</li>
+          <li>Support prioritaire</li>
+          <li>Tableau de bord avancé</li>
+        </ul>
+        <button class="btn-price">Choisir le pack</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <div class="cta-final">
+    <h2>Prêt à recruter<br>votre prochain MNS ?</h2>
+    <p>Rejoignez les premiers employeurs sur MNSjob et bénéficiez du tarif de lancement.</p>
+    <div class="cta-btns">
+      <button class="btn-primary-lg" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">Publier une offre → 49€</button>
+      <button class="btn-outline-lg" onclick="switchView('candidat',document.querySelectorAll('.nav-tab')[0])">Je cherche un poste</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">MNS<span>job</span></div>
+  <div class="footer-links">
+    <a href="#">À propos</a>
+    <a href="#">Offres</a>
+    <a href="#">Employeurs</a>
+    <a href="#">Formations</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 MNSjob · Tous droits réservés</div>
+</footer>
+
+<script>
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+function animRing() { rx += (mx-rx)*0.12; ry += (my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); }
+animRing();
+
+// View switch
+function switchView(view, btn) {
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Tag toggle
+function toggleTag(el) { el.classList.toggle('sel'); }
+function toggleChip(el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+</script>
+</body>
+</html>
